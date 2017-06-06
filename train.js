@@ -7,7 +7,7 @@
 // add it to the local storage
 // when the page loads back get it back from the local storage. 
 var count = 0;
-var firstRowTds;
+//var firstRowTds;
 var doubleArray = [];
 
 $("#submitButton").on("click", function(event){
@@ -32,10 +32,7 @@ $("#submitButton").on("click", function(event){
 	console.log("new array: " + newTrainArray);
 	
 
-// here we update a double array, the whole list array	
-	doubleArray.push(newTrainArray);
-	console.log(doubleArray);
-	console.log("Next time train: " + firstTrainTimeInput);
+
 
 // Here we are adding data to the talbe on the screen
 	// firstRowTds = $("table")
@@ -63,24 +60,27 @@ $("#submitButton").on("click", function(event){
 
 	var d = new Date();
 	var n = d.toLocaleTimeString();
-	console.log(n);
+	//console.log(n);
 	var h = d.getHours();
 	var m = d.getMinutes();
 	// getting the current time
 	//var time = convertMinsToHrsMins(65);
-	console.log(h);
-	console.log(m);
+	//console.log(h);
+	//console.log(m);
 	var totalMinutes = h*60 + m;
 	var minutesToNumber = parseInt(totalMinutes);
-	console.log("total minutes: " + minutesToNumber);
+	//console.log("total minutes: " + minutesToNumber);
 
 
 	var leftMinutes = minutes - minutesToNumber; 
-	console.log("minutes left: " + leftMinutes);
+	//console.log("minutes left: " + leftMinutes);
 
 
-
-
+	newTrainArray.push(leftMinutes);
+// here we update a double array, the whole list array	
+	doubleArray.push(newTrainArray);
+	//console.log(doubleArray);
+	console.log("Next time train: " + firstTrainTimeInput);
 
 
 	
@@ -111,23 +111,13 @@ $("#submitButton").on("click", function(event){
 	//console.log(doubleArray[1][0]);
 	count++;
 
-
-
-
-
-
-
-
-
 	$("#trainName").val('');
 	$("#destination").val('');
 	$("#trainTime").val('');
 	$("#frequency").val('');
-
-
-
-
 })
+
+
 
 $("#clearButton").on("click", function(event){
 	event.preventDefault();
