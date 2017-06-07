@@ -6,6 +6,23 @@
 // maybe with append maybe with .children() table. 
 // add it to the local storage
 // when the page loads back get it back from the local storage. 
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBUvTtdJ56exUqPaFKjuIsoVCo9UKnsFYg",
+    authDomain: "train-schedule-1f468.firebaseapp.com",
+    databaseURL: "https://train-schedule-1f468.firebaseio.com",
+    projectId: "train-schedule-1f468",
+    storageBucket: "train-schedule-1f468.appspot.com",
+    messagingSenderId: "411225177113"
+  };
+  firebase.initializeApp(config);
+
+
+// Create a variable to reference the database
+    var database = firebase.database();
+
+
 var count = 0;
 //var firstRowTds;
 var doubleArray = [];
@@ -102,6 +119,23 @@ $("#submitButton").on("click", function(event){
 
 
 
+// this will create variables in the firebase storage
+      database.ref().set({
+        // trainNameInput: trainNameInput,
+        // destinationInput: destinationInput,
+        // firstTrainTimeInput: firstTrainTimeInput,
+        // frequencyInput: frequencyInput
+        doubleArray: doubleArray
+      });
+  
+
+
+
+
+
+
+
+
 // as we have the whole array ready, we will update the storage
     localStorage.clear();
 	// localStorage.setItem("Train: " + count, JSON.stringify(doubleArray));
@@ -139,12 +173,12 @@ $("#deleteStorage").on("click", function(event){
 $("#addFromStorage").on("click", function(event){
 	event.preventDefault();
 
-	var insideList = JSON.parse(localStorage.getItem("trainSchedule"));
+	//var insideList = JSON.parse(localStorage.getItem("trainSchedule"));
 	//console.log("Array Back: " + insideList);
 	//console.log("Array's length: " + insideList.length);
 
-	 for (var i=0; i<insideList.length; i++) 
-	 {
+	 // for (var i=0; i<insideList.length; i++) 
+	 // {
 
 	 	// var tableRow = $("<tr>");
 	 	// var tableData = $("<td>");
@@ -160,6 +194,18 @@ $("#addFromStorage").on("click", function(event){
 		// firstRowTds.eq(1).text((insideList[i][1]));
 		// firstRowTds.eq(2).text((insideList[i][2]));
 		// firstRowTds.eq(3).text((insideList[i][3]));
+
+	database.ref().on("value", function(snapshot) {
+
+	var insideList = snapshot.val().doubleArray;
+
+	for (var i=0; i<insideList.length; i++) 
+	 {
+
+      // Print the initial data to the console.
+      //console.log(snapshot.val());
+		
+
 
 
 		var newTr = $("<tr>");
@@ -180,7 +226,38 @@ $("#addFromStorage").on("click", function(event){
 		newTr.append(tdMinutesLeft);
 
 		$("#tableBody").append(newTr);
-     }
+
+      }
+      // Log the value of the various properties
+
+      // Change the HTML
+      //$("#displayed-data").html(snapshot.val().name + " | " + snapshot.val().age + " | " + snapshot.val().phone);
+
+      // If any errors are experienced, log them to console.
+    }, function(errorObject) {
+      console.log("The read failed: " + errorObject.code);
+    });
+
+
+		// var newTr = $("<tr>");
+
+		// var tdName = $("<td>").html(insideList[i][0]);
+		// newTr.append(tdName);
+
+		// var tdDestination = $("<td>").html(insideList[i][1]);
+		// newTr.append(tdDestination);
+
+		// var tdFrequency = $("<td>").html(insideList[i][2]);
+		// newTr.append(tdFrequency);
+
+		// var tdNextTrain = $("<td>").html(insideList[i][3]);
+		// newTr.append(tdNextTrain);
+
+		// var tdMinutesLeft = $("<td>").html(insideList[i][4]);
+		// newTr.append(tdMinutesLeft);
+
+		// $("#tableBody").append(newTr);
+     // }
 
 })
 
