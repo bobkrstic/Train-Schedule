@@ -68,7 +68,7 @@ $("#submitButton").on("click", function(event){
 
 	// this will create variables in the firebase storage
 	// and store the data
-      database.ref().set({
+      database.ref().push({
         doubleArray: doubleArray
       });
 
@@ -115,9 +115,9 @@ $("#deleteStorage").on("click", function(event){
 $("#addFromStorage").on("click", function(event){
 	event.preventDefault();
 
-	database.ref().on("value", function(snapshot) {
+	database.ref().on("child_added", function(childSnapshot) {
 
-	var insideList = snapshot.val().doubleArray;
+	var insideList = childSnapshot.val().doubleArray;
 
 	for (var i=0; i<insideList.length; i++) 
 	 {
@@ -164,6 +164,47 @@ $("#addFromStorage").on("click", function(event){
       console.log("The read failed: " + errorObject.code);
     });
 
+
 })
 
+
+  //   database.ref().orderByChild("dateAdded").limitToLast(1).on("child_added", function(snapshot) {
+
+		// var newTr = $("<tr>");
+
+		// var tdName = $("<td>").html(snapshot[0]);
+		// newTr.append(tdName);
+
+		// var tdDestination = $("<td>").html(snapshot[1]);
+		// newTr.append(tdDestination);
+
+		// var tdFrequency = $("<td>").html(snapshot[2]);
+		// newTr.append(tdFrequency);
+
+		
+		// // converting time into number to calculate total of minutes
+		// var firstTimeConverted = moment(snapshot[3], "hh:mm").subtract(1, "years");
+
+		// // getting time difference in minutes
+		// var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+
+		// // calculating time left until next train
+		// var leftMinutes = snapshot[2] - (diffTime % snapshot[2]); 
+
+		// // here we will calculate time until next train
+		// var nextTrain = moment().add(leftMinutes, "minutes");
+		// // converting time into AM/PM
+		// var nextTrainTime = moment(nextTrain).format("LT");
+
+
+
+		// var tdNextTrain = $("<td>").html(nextTrainTime);
+		// newTr.append(tdNextTrain);
+
+
+		// var tdMinutesLeft = $("<td>").html(leftMinutes);
+		// newTr.append(tdMinutesLeft);
+
+		// $("#tableBody").append(newTr);
+  //   });
 
