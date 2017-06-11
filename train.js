@@ -1,11 +1,3 @@
-// alert("working")
-
-// get data from the user
-// display it in the table (check one example first and figure out how to do it.)
-// then dinamically create the table and populate it as you get the input
-// maybe with append maybe with .children() table. 
-// add it to the local storage
-// when the page loads back get it back from the local storage. 
 
   // Initialize Firebase
   var config = {
@@ -18,90 +10,70 @@
   };
   firebase.initializeApp(config);
 
+	
 
-// Create a variable to reference the database
+	// Create a variable to reference the database
     var database = firebase.database();
 
 
-var count = 0;
-//var firstRowTds;
+// double array, multidimensional array will hold arrays of data
 var doubleArray = [];
 
 $("#submitButton").on("click", function(event){
 	event.preventDefault();
 
+	// getting user input
 	var trainNameInput = $("#trainName").val().trim();
 	var destinationInput = $("#destination").val().trim();
 	var firstTrainTimeInput = $("#trainTime").val();
 	var frequencyInput = $("#frequency").val().trim();
 
-	// console.log(trainNameInput);
-	// console.log(destinationInput);
-	// console.log(firstTrainTimeInput);
-	// console.log(frequencyInput);
-
+	// here we will store data per train
 	var newTrainArray = [];
-// pushing data into the single array, for individual train
+
+	// pushing data into the single array, for individual train
 	newTrainArray.push(trainNameInput);
 	newTrainArray.push(destinationInput);
 	newTrainArray.push(frequencyInput);
-	newTrainArray.push(firstTrainTimeInput);
-	console.log("new array: " + newTrainArray);
-	
+
+	// converting time into number to calculate total of minutes
+	var firstTimeConverted = moment(firstTrainTimeInput, "hh:mm").subtract(1, "years");
+
+	// getting time difference in minutes
+	var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+
+	// calculating time left until next train
+	var leftMinutes = frequencyInput - (diffTime % frequencyInput); 
+
+	// here we will calculate time until next train
+	var nextTrain = moment().add(leftMinutes, "minutes");
+	// converting time into AM/PM
+	var nextTrainTime = moment(nextTrain).format("LT");
 
 
-
-// Here we are adding data to the talbe on the screen
-	// firstRowTds = $("table")
-	// .children()
-	// .eq(1)
-	// .children("tr")
-	// .eq(count)
-	// .children("td");
-
-	// firstRowTds.eq(0).text(trainNameInput);
-	// firstRowTds.eq(1).text(destinationInput);
-	// firstRowTds.eq(2).text(frequencyInput);
-	// firstRowTds.eq(3).text(firstTrainTimeInput);
-
-
-	var hms = firstTrainTimeInput;   // your input string
-	var a = hms.split(':'); // split it at the colons
-
-	// Hours are worth 60 minutes.
-	var minutes = (+a[0]) * 60 + (+a[1]);
-
-	console.log("When next train Minutes: " + minutes);
-
-
-
-	var d = new Date();
-	var n = d.toLocaleTimeString();
-	//console.log(n);
-	var h = d.getHours();
-	var m = d.getMinutes();
-	// getting the current time
-	//var time = convertMinsToHrsMins(65);
-	//console.log(h);
-	//console.log(m);
-	var totalMinutes = h*60 + m;
-	var minutesToNumber = parseInt(totalMinutes);
-	//console.log("total minutes: " + minutesToNumber);
-
-
-	var leftMinutes = minutes - minutesToNumber; 
-	//console.log("minutes left: " + leftMinutes);
-
-
+	// completing the array, storing additional data per train
+	newTrainArray.push(nextTrainTime);
 	newTrainArray.push(leftMinutes);
-// here we update a double array, the whole list array	
-	doubleArray.push(newTrainArray);
-	//console.log(doubleArray);
-	console.log("Next time train: " + firstTrainTimeInput);
-
 
 	
 
+	// database.ref().on("value", function(snapshot) {
+	// 	doubleArray = snapshot.val().doubleArray;
+	// })
+
+
+	// update double array, the whole list array	
+	doubleArray.push(newTrainArray);
+
+
+	// this will create variables in the firebase storage
+	// and store the data
+      database.ref().set({
+        doubleArray: doubleArray
+      });
+
+
+	// append data into the table
 	var newTr = $("<tr>");
 	var tdName = $("<td>").html(trainNameInput);
 	newTr.append(tdName);
@@ -109,7 +81,7 @@ $("#submitButton").on("click", function(event){
 	newTr.append(tdDestination);
 	var tdFrequency = $("<td>").html(frequencyInput);
 	newTr.append(tdFrequency);
-	var tdNextTrain = $("<td>").html(firstTrainTimeInput);
+	var tdNextTrain = $("<td>").html(nextTrainTime);
 	newTr.append(tdNextTrain);
 
 	var tdMinutesLeft = $("<td>").html(leftMinutes);
@@ -118,82 +90,30 @@ $("#submitButton").on("click", function(event){
 	$("#tableBody").append(newTr);
 
 
-
-// this will create variables in the firebase storage
-      database.ref().set({
-        // trainNameInput: trainNameInput,
-        // destinationInput: destinationInput,
-        // firstTrainTimeInput: firstTrainTimeInput,
-        // frequencyInput: frequencyInput
-        doubleArray: doubleArray
-      });
-  
-
-
-
-
-
-
-
-
-// as we have the whole array ready, we will update the storage
+	// as we have the whole array ready, we will update the local storage as well
     localStorage.clear();
-	// localStorage.setItem("Train: " + count, JSON.stringify(doubleArray));
 	localStorage.setItem("trainSchedule", JSON.stringify(doubleArray));
 
-	//console.log(count);
-	//console.log(doubleArray[1][0]);
-	count++;
 
+	// clear the fields so the user can easily add new data
 	$("#trainName").val('');
 	$("#destination").val('');
 	$("#trainTime").val('');
-	$("#frequency").val('');
+	//$("#frequency").val('');
+
+	
 })
 
 
-
-$("#clearButton").on("click", function(event){
-	event.preventDefault();
-
-	// $("#trainName").val('');
-	// $("#destination").val('');
-	// $("#trainTime").val('');
-	// $("#frequency").val('');
-
-})
-
-
-
+// on click we will clear the local storage
 $("#deleteStorage").on("click", function(event){
 	localStorage.clear();
 })
 
 
+// as the data is stored in FireBase, we will now populate the table from it
 $("#addFromStorage").on("click", function(event){
 	event.preventDefault();
-
-	//var insideList = JSON.parse(localStorage.getItem("trainSchedule"));
-	//console.log("Array Back: " + insideList);
-	//console.log("Array's length: " + insideList.length);
-
-	 // for (var i=0; i<insideList.length; i++) 
-	 // {
-
-	 	// var tableRow = $("<tr>");
-	 	// var tableData = $("<td>");
-
-		// firstRowTds = $("table")
-		// .children()
-		// .eq(1)
-		// .children("tr")
-		// .eq(i)
-		// .children("td");
-
-		// firstRowTds.eq(0).text((insideList[i][0]));
-		// firstRowTds.eq(1).text((insideList[i][1]));
-		// firstRowTds.eq(2).text((insideList[i][2]));
-		// firstRowTds.eq(3).text((insideList[i][3]));
 
 	database.ref().on("value", function(snapshot) {
 
@@ -201,13 +121,6 @@ $("#addFromStorage").on("click", function(event){
 
 	for (var i=0; i<insideList.length; i++) 
 	 {
-
-      // Print the initial data to the console.
-      //console.log(snapshot.val());
-		
-
-
-
 		var newTr = $("<tr>");
 
 		var tdName = $("<td>").html(insideList[i][0]);
@@ -219,53 +132,38 @@ $("#addFromStorage").on("click", function(event){
 		var tdFrequency = $("<td>").html(insideList[i][2]);
 		newTr.append(tdFrequency);
 
-		var tdNextTrain = $("<td>").html(insideList[i][3]);
+		
+		// converting time into number to calculate total of minutes
+		var firstTimeConverted = moment(insideList[i][3], "hh:mm").subtract(1, "years");
+
+		// getting time difference in minutes
+		var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+
+		// calculating time left until next train
+		var leftMinutes = insideList[i][2] - (diffTime % insideList[i][2]); 
+
+		// here we will calculate time until next train
+		var nextTrain = moment().add(leftMinutes, "minutes");
+		// converting time into AM/PM
+		var nextTrainTime = moment(nextTrain).format("LT");
+
+
+
+		var tdNextTrain = $("<td>").html(nextTrainTime);
 		newTr.append(tdNextTrain);
 
-		var tdMinutesLeft = $("<td>").html(insideList[i][4]);
+
+		var tdMinutesLeft = $("<td>").html(leftMinutes);
 		newTr.append(tdMinutesLeft);
 
 		$("#tableBody").append(newTr);
 
       }
-      // Log the value of the various properties
-
-      // Change the HTML
-      //$("#displayed-data").html(snapshot.val().name + " | " + snapshot.val().age + " | " + snapshot.val().phone);
-
-      // If any errors are experienced, log them to console.
+   
     }, function(errorObject) {
       console.log("The read failed: " + errorObject.code);
     });
 
-
-		// var newTr = $("<tr>");
-
-		// var tdName = $("<td>").html(insideList[i][0]);
-		// newTr.append(tdName);
-
-		// var tdDestination = $("<td>").html(insideList[i][1]);
-		// newTr.append(tdDestination);
-
-		// var tdFrequency = $("<td>").html(insideList[i][2]);
-		// newTr.append(tdFrequency);
-
-		// var tdNextTrain = $("<td>").html(insideList[i][3]);
-		// newTr.append(tdNextTrain);
-
-		// var tdMinutesLeft = $("<td>").html(insideList[i][4]);
-		// newTr.append(tdMinutesLeft);
-
-		// $("#tableBody").append(newTr);
-     // }
-
 })
 
 
-function convertMinsToHrsMins(minutes){ 
-  var h = Math.floor(minutes / 60);
-  var m = minutes % 60;
-  h = h < 10 ? '0' + h : h;
-  m = m < 10 ? '0' + m : m;
-  return h + ':' + m;
-}

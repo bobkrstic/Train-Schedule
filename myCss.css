@@ -1,0 +1,18 @@
+#mainHeader {
+	text-align: center;
+	background: rgb(0,107,152);
+	color: white;
+	border: 1px solid black;
+}
+
+#pHead, #tHead, #deleteStorage, #submitButton, #addFromStorage {
+	background: rgb(91,194,249);
+	/*color: white;*/
+	border: 1px solid black;
+}
+
+#deleteStorage:hover, #submitButton:hover, #addFromStorage:hover {
+	background: white;
+	box-shadow: 3px 3px 1px #888888;
+	border: 1px solid white;
+}
