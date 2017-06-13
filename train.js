@@ -87,8 +87,8 @@ $("#deleteStorage").on("click", function(event){
 
 
 // as the data is stored in FireBase, we will now populate the table from it
-$("#addFromStorage").on("click", function(event){
-	event.preventDefault();
+// $("#addFromStorage").on("click", function(event){
+// 	event.preventDefault();
 
 	database.ref().on("child_added", function(childSnapshot) {
 		//console.log("yes")
@@ -141,5 +141,5 @@ $("#addFromStorage").on("click", function(event){
     });
 
 
-})
+// })
 
