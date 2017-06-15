@@ -12,8 +12,8 @@
 
 	
 
-	// Create a variable to reference the database
-    var database = firebase.database();
+// Create a variable to reference the database
+var database = firebase.database();
 
 
 // double array, multidimensional array will hold arrays of data
@@ -59,17 +59,14 @@ $("#submitButton").on("click", function(event){
 	// update double array, the whole list array	
 	doubleArray.push(newTrainArray);
 
-	//console.log(doubleArray);
-
 
 	// this will create variables in the firebase storage
 	// and store the data
-      database.ref().push({
+      database.ref().set({
         doubleArray: doubleArray
       });
 
 
-	// clear the fields so the user can easily add new data
 	$("#trainName").val('');
 	$("#destination").val('');
 	$("#trainTime").val('');
@@ -79,67 +76,62 @@ $("#submitButton").on("click", function(event){
 })
 
 
-// on click we will clear the local storage
-$("#deleteStorage").on("click", function(event){
-	event.preventDefault();
-	//localStorage.clear();
-})
 
+database.ref().on("value", function(childSnapshot) {
 
-// as the data is stored in FireBase, we will now populate the table from it
-// $("#addFromStorage").on("click", function(event){
-// 	event.preventDefault();
+	if (childSnapshot.child("doubleArray").exists()){
 
-	database.ref().on("child_added", function(childSnapshot) {
-		//console.log("yes")
+		doubleArray = childSnapshot.val().doubleArray;
 
-	var insideList = childSnapshot.val().doubleArray;
+		$("#tableBody").empty();
 
-	for (var i=0; i<insideList.length; i++) 
-	 {
-		var newTr = $("<tr>");
+		for (var i=0; i<doubleArray.length; i++) 
+		 {
+			var newTr = $("<tr>");
 
-		var tdName = $("<td>").html(insideList[i][0]);
-		newTr.append(tdName);
+			var tdName = $("<td>").html(doubleArray[i][0]);
+			newTr.append(tdName);
 
-		var tdDestination = $("<td>").html(insideList[i][1]);
-		newTr.append(tdDestination);
+			var tdDestination = $("<td>").html(doubleArray[i][1]);
+			newTr.append(tdDestination);
 
-		var tdFrequency = $("<td>").html(insideList[i][2]);
-		newTr.append(tdFrequency);
+			var tdFrequency = $("<td>").html(doubleArray[i][2]);
+			newTr.append(tdFrequency);
 
-		
-		// converting time into number to calculate total of minutes
-		var firstTimeConverted = moment(insideList[i][3], "hh:mm").subtract(1, "years");
+			
+			// converting time into number to calculate total of minutes
+			var firstTimeConverted = moment(doubleArray[i][3], "hh:mm").subtract(1, "years");
 
-		// getting time difference in minutes
-		var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+			// getting time difference in minutes
+			var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
 
-		// calculating time left until next train
-		var leftMinutes = insideList[i][2] - (diffTime % insideList[i][2]); 
+			// calculating time left until next train
+			var leftMinutes = doubleArray[i][2] - (diffTime % doubleArray[i][2]); 
 
-		// here we will calculate time until next train
-		var nextTrain = moment().add(leftMinutes, "minutes");
-		// converting time into AM/PM
-		var nextTrainTime = moment(nextTrain).format("LT");
+			// here we will calculate time until next train
+			var nextTrain = moment().add(leftMinutes, "minutes");
+			// converting time into AM/PM
+			var nextTrainTime = moment(nextTrain).format("LT");
 
 
 
-		var tdNextTrain = $("<td>").html(nextTrainTime);
-		newTr.append(tdNextTrain);
+			var tdNextTrain = $("<td>").html(nextTrainTime);
+			newTr.append(tdNextTrain);
 
 
-		var tdMinutesLeft = $("<td>").html(leftMinutes);
-		newTr.append(tdMinutesLeft);
+			var tdMinutesLeft = $("<td>").html(leftMinutes);
+			newTr.append(tdMinutesLeft);
 
-		$("#tableBody").append(newTr);
+			$("#tableBody").append(newTr);
 
-      }
+	      }
+
+  	}
    
     }, function(errorObject) {
       console.log("The read failed: " + errorObject.code);
     });
 
 
-// })
+
 
